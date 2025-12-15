@@ -1,0 +1,5 @@
+{
+  "name": "Bingo Matemàtic AI",
+  "description": "An educational math bingo game featuring classic operations and AI-generated word problems using Gemini.",
+  "requestFramePermissions": []
+}
