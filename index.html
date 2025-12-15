@@ -39,6 +39,16 @@
   }
 }
 </script>
+<!-- CONFIGURACIÓ PER A GITHUB PAGES -->
+<script>
+    window.process = {
+        env: {
+            // Opcional: Posa la teva API Key aquí si vols utilitzar IA.
+            // Si la deixes buida, l'app utilitzarà el mode sense connexió.
+            API_KEY: "" 
+        }
+    };
+</script>
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
     <div id="root"></div>
