@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TRANSLATIONS, REWARD_EMOJIS } from './constants';
-import { SetupScreen } from './components/SetupScreen';
-import { GameScreen } from './components/GameScreen';
-import { WinScreen } from './components/WinScreen';
-import { playSound } from './services/audioEngine';
-import { generateMathProblem } from './services/geminiService';
-import { UserData, BingoCell, Question, Language, AttemptRecord, GameMode, Operation, Difficulty } from './types';
+import { TRANSLATIONS, REWARD_EMOJIS } from './constants.ts';
+import { SetupScreen } from './components/SetupScreen.tsx';
+import { GameScreen } from './components/GameScreen.tsx';
+import { WinScreen } from './components/WinScreen.tsx';
+import { playSound } from './services/audioEngine.ts';
+import { generateMathProblem } from './services/geminiService.ts';
+import { UserData, BingoCell, Question, Language, AttemptRecord, GameMode, Operation, Difficulty } from './types.ts';
 
 export default function App() {
     // --- State ---

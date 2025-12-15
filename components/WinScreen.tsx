@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Translations } from '../types';
+import { Translations } from '../types.ts';
 
 interface WinProps {
     t: Translations;

@@ -1,4 +1,4 @@
-import { Translations, Language } from './types';
+import { Translations, Language } from './types.ts';
 
 export const REWARD_EMOJIS = [
     '🦄', '🦖', '🚀', '🍕', '🎮', '🌈', '🐱', '🤖', '🍦', 

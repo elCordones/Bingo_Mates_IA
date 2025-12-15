@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { Language } from "../types";
+import { Language } from "../types.ts";
 
 const apiKey = process.env.API_KEY || ''; 
 

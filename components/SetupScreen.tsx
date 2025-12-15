@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserData, Difficulty, Operation, Translations, GameMode } from '../types';
+import { UserData, Difficulty, Operation, Translations, GameMode } from '../types.ts';
 
 interface SetupProps {
     t: Translations;

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BingoCell, Question, Translations } from '../types';
+import { BingoCell, Question, Translations } from '../types.ts';
 
 interface GameProps {
     t: Translations;
