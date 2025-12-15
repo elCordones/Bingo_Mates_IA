@@ -38,7 +38,6 @@
     "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
     "react": "https://esm.sh/react@^19.2.3",
     "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
-    "react-dom": "https://esm.sh/react-dom@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
   }
@@ -49,7 +48,6 @@
     window.process = {
         env: {
             // Opcional: Posa la teva API Key aquí si vols utilitzar IA.
-            // Si la deixes buida, l'app utilitzarà el mode sense connexió.
             API_KEY: "" 
         }
     };
@@ -57,7 +55,7 @@
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
     <div id="root"></div>
-    <!-- Note: type="text/babel" and data-type="module" are required for Babel Standalone -->
+    <!-- Load the single entry file -->
     <script type="text/babel" data-type="module" data-presets="react,typescript" src="./index.tsx"></script>
 </body>
 </html>
