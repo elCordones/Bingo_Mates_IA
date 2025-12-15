@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createRoot } from 'react-dom/client';
 import { TRANSLATIONS, REWARD_EMOJIS } from './constants';
 import { SetupScreen } from './components/SetupScreen';
 import { GameScreen } from './components/GameScreen';
@@ -8,7 +7,7 @@ import { playSound } from './services/audioEngine';
 import { generateMathProblem } from './services/geminiService';
 import { UserData, BingoCell, Question, Language, AttemptRecord, GameMode, Operation, Difficulty } from './types';
 
-function App() {
+export default function App() {
     // --- State ---
     const [lang, setLang] = useState<Language>('ca');
     const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
@@ -352,10 +351,4 @@ ${detailsText}
             </footer>
         </div>
     );
-}
-
-const rootElement = document.getElementById('root');
-if (rootElement) {
-    const root = createRoot(rootElement);
-    root.render(<App />);
 }
