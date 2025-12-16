@@ -1,3 +1,21 @@
+/*
+ * Bingo Matemàtic AI
+ * Copyright (C) 2025 David Cordones
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GoogleGenAI } from "@google/genai";
@@ -67,6 +85,9 @@ export interface Translations {
     err_enter_name: string;
     max_attempts_reached: string;
     failed_status: string;
+    history_title: string;
+    col_q: string;
+    col_a: string;
 }
 
 // ==========================================
@@ -99,13 +120,16 @@ export const TRANSLATIONS: Record<Language, Translations> = {
         question: "Resol:",
         bingo_shout: "BINGO!",
         congrats: "Felicitats",
-        download: "Resultats 📥",
+        download: "Descarregar Resultats 📥",
         restart: "Tornar a jugar 🔄",
         loading_ai: "Preparant el problema...",
         err_select_ops: "Selecciona una operació!",
         err_enter_name: "Escriu el teu nom!",
         max_attempts_reached: "Oh no! La resposta era:",
-        failed_status: "No superat"
+        failed_status: "No superat",
+        history_title: "Resum de la partida",
+        col_q: "Pregunta",
+        col_a: "Resposta"
     },
     es: {
         title: "Bingo Matemático",
@@ -126,13 +150,16 @@ export const TRANSLATIONS: Record<Language, Translations> = {
         question: "Resuelve:",
         bingo_shout: "¡BINGO!",
         congrats: "Felicidades",
-        download: "Resultados 📥",
+        download: "Descargar Resultados 📥",
         restart: "Volver a jugar 🔄",
         loading_ai: "Preparando el problema...",
         err_select_ops: "¡Selecciona una operación!",
         err_enter_name: "¡Escribe tu nombre!",
         max_attempts_reached: "¡Oh no! La respuesta era:",
-        failed_status: "No superado"
+        failed_status: "No superado",
+        history_title: "Resumen de la partida",
+        col_q: "Pregunta",
+        col_a: "Respuesta"
     },
     en: {
         title: "Math Bingo",
@@ -153,13 +180,16 @@ export const TRANSLATIONS: Record<Language, Translations> = {
         question: "Solve:",
         bingo_shout: "BINGO!",
         congrats: "Congratulations",
-        download: "Results 📥",
+        download: "Download Results 📥",
         restart: "Play Again 🔄",
         loading_ai: "Preparing problem...",
         err_select_ops: "Select an operation!",
         err_enter_name: "Enter your name!",
         max_attempts_reached: "Oh no! The answer was:",
-        failed_status: "Failed"
+        failed_status: "Failed",
+        history_title: "Game Summary",
+        col_q: "Question",
+        col_a: "Answer"
     },
     gl: {
         title: "Bingo Matemático",
@@ -186,7 +216,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
         err_select_ops: "Selecciona unha operación!",
         err_enter_name: "Escribe o teu nome!",
         max_attempts_reached: "Vaya! A resposta era:",
-        failed_status: "Non superado"
+        failed_status: "Non superado",
+        history_title: "Resumo da partida",
+        col_q: "Pregunta",
+        col_a: "Resposta"
     },
     eu: {
         title: "Matematika Bingoa",
@@ -213,7 +246,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
         err_select_ops: "Aukeratu eragiketa bat!",
         err_enter_name: "Idatzi zure izena!",
         max_attempts_reached: "Ai ene! Erantzuna hau zen:",
-        failed_status: "Ez da gainditu"
+        failed_status: "Ez da gainditu",
+        history_title: "Partidaren laburpena",
+        col_q: "Galdera",
+        col_a: "Erantzuna"
     }
 };
 
@@ -377,13 +413,15 @@ const generateMathProblem = async (targetAnswer: number, mathOperation: string, 
 interface SetupProps {
     t: Translations;
     onStart: (data: UserData) => void;
+    initialData: UserData; // NEW PROP
 }
 
-const SetupScreen: React.FC<SetupProps> = ({ t, onStart }) => {
-    const [name, setName] = useState('');
-    const [difficulty, setDifficulty] = useState<Difficulty>('medium');
-    const [ops, setOps] = useState<Operation[]>(['add']);
-    const [mode, setMode] = useState<GameMode>('classic');
+const SetupScreen: React.FC<SetupProps> = ({ t, onStart, initialData }) => {
+    // Initialize state with initialData if available
+    const [name, setName] = useState(initialData.name || '');
+    const [difficulty, setDifficulty] = useState<Difficulty>(initialData.difficulty || 'medium');
+    const [ops, setOps] = useState<Operation[]>(initialData.ops.length ? initialData.ops : ['add']);
+    const [mode, setMode] = useState<GameMode>(initialData.mode || 'classic');
 
     const toggleOp = (op: Operation) => {
         if (ops.includes(op)) {
@@ -591,11 +629,12 @@ interface WinProps {
     name: string;
     score: number;
     collectedItems: string[];
+    history: AttemptRecord[]; // NEW PROP
     onDownload: () => void;
     onRestart: () => void;
 }
 
-const WinScreen: React.FC<WinProps> = ({ t, name, score, collectedItems, onDownload, onRestart }) => {
+const WinScreen: React.FC<WinProps> = ({ t, name, score, collectedItems, history, onDownload, onRestart }) => {
     
     useEffect(() => {
         const end = Date.now() + 3000;
@@ -627,7 +666,7 @@ const WinScreen: React.FC<WinProps> = ({ t, name, score, collectedItems, onDownl
     }, []);
 
     return (
-        <div className="text-center z-10 animate-pop w-full max-w-2xl px-4 flex flex-col items-center">
+        <div className="text-center z-10 animate-pop w-full max-w-2xl px-4 flex flex-col items-center my-8">
             <div className="text-8xl mb-4 animate-bounce">🏆</div>
             <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-warn mb-4 drop-shadow-sm">{t.bingo_shout}</h2>
             <p className="text-2xl text-gray-600 dark:text-gray-300 mb-8 font-medium">
@@ -646,6 +685,39 @@ const WinScreen: React.FC<WinProps> = ({ t, name, score, collectedItems, onDownl
                             <span key={i} className="animate-pop" style={{animationDelay: `${i * 100}ms`}}>{item}</span>
                         ))}
                     </div>
+                </div>
+            </div>
+
+            {/* NEW: On-screen Results History */}
+            <div className="w-full bg-white dark:bg-gray-800 p-4 rounded-3xl shadow-xl border-4 border-gray-100 dark:border-gray-700 mb-8 text-left">
+                <h3 className="text-lg font-bold text-gray-500 uppercase tracking-widest mb-3 border-b pb-2 dark:border-gray-600">
+                    {t.history_title}
+                </h3>
+                <div className="max-h-60 overflow-y-auto pr-2">
+                    <table className="w-full text-sm">
+                        <thead className="text-gray-400 dark:text-gray-500">
+                            <tr>
+                                <th className="text-left pb-2">{t.col_q}</th>
+                                <th className="text-right pb-2">{t.col_a}</th>
+                                <th className="text-right pb-2"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {history.map((record, i) => (
+                                <tr key={i} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
+                                    <td className="py-2 text-gray-700 dark:text-gray-300 font-medium">{record.question}</td>
+                                    <td className="py-2 text-right font-black text-primary">{record.answer}</td>
+                                    <td className="py-2 text-right">
+                                        {record.status === 'success' ? (
+                                            <span className="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-bold">✓</span>
+                                        ) : (
+                                            <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-bold">✗</span>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -972,7 +1044,7 @@ ${detailsText}
             </header>
 
             <main className="flex-grow flex items-center justify-center p-4 relative z-10">
-                {gameState === 'setup' && <SetupScreen t={t} onStart={startGame} />}
+                {gameState === 'setup' && <SetupScreen t={t} onStart={startGame} initialData={userData} />}
                 
                 {gameState === 'playing' && (
                     <GameScreen 
@@ -993,14 +1065,33 @@ ${detailsText}
                         name={userData.name} 
                         score={score} 
                         collectedItems={collectedItems}
+                        history={attemptHistory}
                         onDownload={downloadResults} 
                         onRestart={() => setGameState('setup')} 
                     />
                 )}
             </main>
 
-            <footer className="p-4 text-center text-xs text-gray-400 dark:text-gray-600 font-bold z-10">
-                Math Bingo AI • Powered by Google Gemini
+            <footer className="p-6 text-center text-xs text-gray-500 dark:text-gray-400 z-10 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm w-full border-t border-gray-200 dark:border-gray-800">
+                <div className="font-bold text-sm mb-1">© 2025 David Cordones</div>
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4">
+                    <span>
+                        Licencia del código: <a href="./LICENSE.txt" target="_blank" className="text-secondary hover:underline">AGPL v3</a>
+                    </span>
+                    <span className="hidden sm:inline text-gray-300 dark:text-gray-600">|</span>
+                    <span className="flex items-center gap-1">
+                        Contenido: 
+                        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" className="text-secondary hover:underline flex items-center gap-1">
+                            CC BY-SA 4.0
+                            <i className="fa-brands fa-creative-commons text-base"></i>
+                            <i className="fa-brands fa-creative-commons-by text-base"></i>
+                            <i className="fa-brands fa-creative-commons-sa text-base"></i>
+                        </a>
+                    </span>
+                </div>
+                <div className="mt-4 text-[10px] opacity-60 uppercase tracking-widest">
+                    Bingo Matemàtic AI • Powered by Google Gemini
+                </div>
             </footer>
         </div>
     );
